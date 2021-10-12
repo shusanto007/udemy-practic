@@ -2,10 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DLL;
+using DLL.DBContext;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -27,7 +30,9 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
-            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo {Title = "API", Version = "v1"}); });
+            services.AddSwaggerGen(c => 
+                { c.SwaggerDoc("v1", new OpenApiInfo
+                             {Title = "API", Version = "v1"}); });
             services.AddApiVersioning(opt =>
             {
                 // Will provide the different api version which is available for the client
@@ -37,6 +42,8 @@ namespace API
                 // We are giving the default version of 1.0 to the api
                 opt.DefaultApiVersion = ApiVersion.Default; // new ApiVersion(1, 0);
             });
+            
+            DLLDependency.AllDependency(services,Configuration);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
