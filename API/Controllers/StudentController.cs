@@ -1,43 +1,56 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using BLL.Services;
 using DLL.Model;
+using DLL.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
     public class StudentController : MainApiController
     {
-        // GET
-        [HttpGet]
-        public IActionResult GetAll([FromQuery] string rollnumber, [FromQuery] string nickName)
+        private readonly IStudentService _studentService;
+
+        public StudentController(IStudentService studentService)
         {
-            return Ok(StudentStatic.GetAllStudent());
+            _studentService = studentService;
+        }
+
+        // GET
+        //[FromQuery] string rollnumber, [FromQuery] string nickName
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            return Ok(await _studentService.GetAllAsync());
         }
 
         [HttpGet("{Email}")]
-        public IActionResult GetA(string email)
+        public async Task<IActionResult> GetA(string email)
         {
-            return Ok(StudentStatic.GetAStudent(email));
+            return Ok(await _studentService.GetAAsync(email));
         }
 
+        //[FromForm] Student student
         [HttpPost]
-        public IActionResult Insert([FromForm] Student student)
+        public async Task<IActionResult> Insert(Student student)
         {
-            return Ok(StudentStatic.InsertStudent(student));
+            return Ok(await _studentService.InsertAsync(student));
         }
 
         [HttpPut("{email}")]
-        public IActionResult Update(string email, Student student)
+        public async Task<IActionResult> Update(string email, Student student)
         {
-            return Ok(StudentStatic.UpdateStudent(email, student));
+            return Ok(await _studentService.UpdateAsync(email, student));
         }
 
         [HttpDelete("{email}")]
-        public IActionResult Delete(string email)
+        public async Task<IActionResult> Delete(string email)
         {
-            return Ok(StudentStatic.DeleteStudent(email));
+            return Ok(await _studentService.DeleteAsync(email));
         }
     }
+    
     
     public static class StudentStatic
     {
@@ -82,4 +95,5 @@ namespace API.Controllers
             return student;
         }
     }
+    
 }

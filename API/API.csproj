@@ -5,6 +5,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.3" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Versioning" Version="5.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.10">
           <PrivateAssets>all</PrivateAssets>
@@ -14,6 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\BLL\BLL.csproj" />
       <ProjectReference Include="..\DLL\DLL.csproj" />
     </ItemGroup>
 
