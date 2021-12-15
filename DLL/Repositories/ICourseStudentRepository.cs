@@ -7,14 +7,14 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DLL.Repositories
 {
-    public interface IDepartmentRepository : IRepositoryBase<Department>
+    public interface ICourseStudentRepository : IRepositoryBase<CourseStudent>
     {
         
     }
 
-    public class DepartmentRepository : RepositoryBase<Department> , IDepartmentRepository
+    public class CourseStudentRepository : RepositoryBase<CourseStudent> , ICourseStudentRepository
     { 
-        public DepartmentRepository(ApplicationDbContext context) : base(context)
+        public CourseStudentRepository(ApplicationDbContext context) : base(context)
         {
             
         }

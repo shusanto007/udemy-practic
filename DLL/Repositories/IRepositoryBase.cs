@@ -19,14 +19,14 @@ namespace DLL.Repositories
         void Delete(T entry);
         void DeleteRange(List<T> entryList);
         Task<T> FindSingleAsync(Expression<Func<T, bool>> expression);
-        Task<bool> SaveCompletedAsync();
+        
     }
 
     public class RepositoryBase<T> : IRepositoryBase<T> where T : class
     {
         private readonly ApplicationDbContext _context;
 
-        public RepositoryBase(ApplicationDbContext context)
+        protected RepositoryBase(ApplicationDbContext context)
         {
             _context = context;
         }
@@ -40,9 +40,14 @@ namespace DLL.Repositories
 
         public async Task<List<T>> GetList(Expression<Func<T, bool>> expression = null)
         {
-            return expression != null
-                ? await _context.Set<T>().AsQueryable().Where(expression).AsNoTracking().ToListAsync()
-                : await _context.Set<T>().AsQueryable().AsNoTracking().ToListAsync();
+            if (expression == null)
+            {
+                return await _context.Set<T>().AsQueryable().AsNoTracking().ToListAsync();
+            }
+            else
+            {
+                return await _context.Set<T>().AsQueryable().Where(expression).AsNoTracking().ToListAsync();
+            }
         }
 
         public async Task CreateAsync(T entry)
@@ -80,9 +85,6 @@ namespace DLL.Repositories
             return await _context.Set<T>().FirstOrDefaultAsync(expression);
         }
 
-        public async Task<bool> SaveCompletedAsync()
-        {
-            return await _context.SaveChangesAsync() > 0;
-        }
+       
     }
 }

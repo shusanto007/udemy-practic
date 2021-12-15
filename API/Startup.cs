@@ -17,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
 
 namespace API
 {
@@ -32,7 +33,9 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers().AddFluentValidation().AddNewtonsoftJson();
+            services.AddControllers().AddFluentValidation().AddNewtonsoftJson(
+                options => options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+            
             services.AddSwaggerGen(c => 
                 { c.SwaggerDoc("v1", new OpenApiInfo
                              {Title = "API", Version = "v1"}); });

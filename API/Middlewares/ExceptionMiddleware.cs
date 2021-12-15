@@ -40,7 +40,7 @@ namespace API.Middlewares
 
         private async Task HandleExceptionAsync(HttpContext context, Exception exception, IWebHostEnvironment env)
         {
-            var code = HttpStatusCode.InternalServerError;
+            const HttpStatusCode code = HttpStatusCode.InternalServerError;
             var errors = new ApiErrorResponse()
             {
                 StatusCode = (int) code

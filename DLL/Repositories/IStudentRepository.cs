@@ -1,63 +1,39 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DLL.DBContext;
 using DLL.Model;
+using DLL.ResponseViewModel;
 using Microsoft.EntityFrameworkCore;
 
 namespace DLL.Repositories
 {
-    public interface IStudentRepository
+    public interface IStudentRepository: IRepositoryBase<Student>
     {
-        Task<Student> InsertAsync(Student student);
-        Task<List<Student>> GetAllAsync();
-        Task<Student> GetAAsync(string email);
-        Task<Student> DeleteAsync(string email);
-        Task<Student> UpdateAsync(string email, Student student);
+        Task<StudentCourseViewModel> GetSpecificStudentCourseList(int studentId);
     }
 
-    public class StudentRepository: IStudentRepository
+    public class StudentRepository : RepositoryBase<Student>,  IStudentRepository
     {
         private readonly ApplicationDbContext _context;
 
-        public StudentRepository(ApplicationDbContext context)
+        public StudentRepository(ApplicationDbContext context) : base(context)
         {
             _context = context;
         }
 
-        public async Task<Student> InsertAsync(Student student)
+        public async Task<StudentCourseViewModel> GetSpecificStudentCourseList(int studentId)
         {
-            await _context.Students.AddAsync(student);
-            await _context.SaveChangesAsync();
-            return student;
-        }
-
-        public async Task<List<Student>> GetAllAsync()
-        {
-            return await _context.Students.ToListAsync();
-        }
-
-        public async Task<Student> GetAAsync(string email)
-        {
-            var findStudent = await _context.Students.FirstOrDefaultAsync(x => x.Email == email);
-            return findStudent;
-        }
-
-        public async Task<Student> DeleteAsync(string email)
-        {
-            var findStudent = await _context.Students.FirstOrDefaultAsync(x => x.Email == email);
-
-            _context.Students.Remove(findStudent);
-            await _context.SaveChangesAsync();
-            return findStudent;
-        }
-
-        public async Task<Student> UpdateAsync(string email, Student student)
-        {
-            var findStudent = await _context.Students.FirstOrDefaultAsync(x => x.Email == email);
-            findStudent.Name = student.Name; 
-            _context.Students.Update(findStudent);
-            await _context.SaveChangesAsync();
-            return findStudent;
+            return await _context.Students
+                .Include(x => x.CourseStudents).ThenInclude(x => x.Course)
+                .Select(x => new StudentCourseViewModel()
+                {
+                    StudentId = x.StudentId,
+                    Name = x.Name,
+                    Email = x.Email,
+                    Courses = x.CourseStudents.Select(x => x.Course).ToList()
+                })
+                .FirstOrDefaultAsync(x => x.StudentId == studentId);
         }
     }
 }
