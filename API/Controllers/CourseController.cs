@@ -9,10 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    [ApiVersion( "1.0" )]
-    [ApiController]
-    [Route("api/{version:apiVersion}/[controller]")]
-    public class CourseController : ControllerBase
+    public class CourseController : MainApiController
     {
         private readonly ICourseService _courseService;
 

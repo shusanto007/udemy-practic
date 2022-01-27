@@ -10,6 +10,7 @@ using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -48,10 +49,16 @@ namespace API
                 // We are giving the default version of 1.0 to the api
                 opt.DefaultApiVersion = ApiVersion.Default; // new ApiVersion(1, 0);
             });
-            
+
+            IdentitySetup(services);
             
             DLLDependency.AllDependency(services,Configuration);
             BLLDependency.AllDependency(services,Configuration);
+        }
+
+        private void IdentitySetup(IServiceCollection services)
+        {
+            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

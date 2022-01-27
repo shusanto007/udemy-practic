@@ -7,11 +7,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using DLL.Model;
 using DLL.Model.Interfaces;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace DLL.DBContext
 {
-    public class ApplicationDbContext : DbContext
+    public class  ApplicationDbContext : IdentityDbContext<IdentityUser>
     {
         private const string IsDeletedProperty = "IsDeleted";
         
