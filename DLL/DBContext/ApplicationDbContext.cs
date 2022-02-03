@@ -13,7 +13,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DLL.DBContext
 {
-    public class  ApplicationDbContext : IdentityDbContext<IdentityUser>
+    public class  ApplicationDbContext : IdentityDbContext<AppUser, AppRole, int,
+        IdentityUserClaim<int>, AppUserRole, IdentityUserLogin<int>,
+        IdentityRoleClaim<int>, IdentityUserToken<int>>
     {
         private const string IsDeletedProperty = "IsDeleted";
         
@@ -23,7 +25,6 @@ namespace DLL.DBContext
         
         public ApplicationDbContext(DbContextOptions options) : base(options)
         {
-            
         }
 
         private static LambdaExpression GetIsDeletedRestriction(Type type)
@@ -69,6 +70,23 @@ namespace DLL.DBContext
                 .WithMany(c => c.CourseStudents)
                 .HasForeignKey(bc => bc.StudentId);
             
+            
+            // many to many relation for Microsoft Identity 
+            modelBuilder.Entity<AppUser>(u =>
+            {
+                u.HasMany(e => e.AppUserRoles)
+                    .WithOne(e => e.User)
+                    .HasForeignKey(e => e.UserId)
+                    .IsRequired();
+            });
+            
+            modelBuilder.Entity<AppRole>(u =>
+            {
+                u.HasMany(e => e.AppUserRoles)
+                    .WithOne(e => e.Role)
+                    .HasForeignKey(e => e.RoleId)
+                    .IsRequired();
+            });
             
             base.OnModelCreating(modelBuilder);
         }

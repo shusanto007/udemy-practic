@@ -17,6 +17,7 @@ namespace API.Controllers
         public async  Task<IActionResult> Index()
         {
 
+            await _testService.AddNewRoles();
             await _testService.AddNewUser();
             return Ok("ok");
         }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using DLL.Model.Interfaces;
 using Microsoft.AspNetCore.Identity;
 
@@ -12,5 +13,7 @@ namespace DLL.Model
         public string CreatedBy { get; set; }
         public DateTimeOffset LastUpdatedAt { get; set; }
         public string LastUpdatedBy { get; set; }
+
+        public virtual ICollection<AppUserRole> AppUserRoles { get; set; }
     }
 }

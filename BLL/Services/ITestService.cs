@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using DLL.Model;
 using Microsoft.AspNetCore.Identity;
 
 namespace BLL.Services
@@ -12,11 +13,11 @@ namespace BLL.Services
 
     public class TestService : ITestService
     {
-        private readonly RoleManager<IdentityRole> _roleManager;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<AppRole> _roleManager;
+        private readonly UserManager<AppUser> _userManager;
 
-        public TestService(RoleManager<IdentityRole> roleManager,
-            UserManager<IdentityUser> userManager)
+        public TestService(RoleManager<AppRole> roleManager,
+            UserManager<AppUser> userManager)
         {
             _roleManager = roleManager;
             _userManager = userManager;
@@ -37,7 +38,7 @@ namespace BLL.Services
 
                 if (roleExits == null)
                 {
-                    await _roleManager.CreateAsync(new IdentityRole()
+                    await _roleManager.CreateAsync(new AppRole()
                     {
                         Name = role
                     });
@@ -47,14 +48,14 @@ namespace BLL.Services
 
         public async Task AddNewUser()
         {
-            var userList = new List<IdentityUser>()
+            var userList = new List<AppUser>()
             {
-                new IdentityUser()
+                new AppUser()
                 {
                     UserName = "Tapos",
                     Email = "Tapos.aa@gmail.com"
                 },
-                new IdentityUser()
+                new AppUser()
                 {
                     UserName = "Sanjib",
                     Email = "Sanjib.aa@gmail.com"

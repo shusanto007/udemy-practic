@@ -6,6 +6,7 @@ using API.Middlewares;
 using BLL;
 using DLL;
 using DLL.DBContext;
+using DLL.Model;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -51,14 +52,14 @@ namespace API
             });
 
             IdentitySetup(services);
-            
+
             DLLDependency.AllDependency(services,Configuration);
             BLLDependency.AllDependency(services,Configuration);
         }
 
         private void IdentitySetup(IServiceCollection services)
         {
-            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddIdentity<AppUser, AppRole>().AddEntityFrameworkStores<ApplicationDbContext>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
