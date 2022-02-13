@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using DLL.Model;
 using Microsoft.AspNetCore.Identity;
+using OpenIddict.Abstractions;
 
 namespace BLL.Services
 {
@@ -9,18 +10,22 @@ namespace BLL.Services
     {
         Task AddNewRoles();
         Task AddNewUser();
+        Task CreateAndroidAndWebClient();
     }
 
     public class TestService : ITestService
     {
         private readonly RoleManager<AppRole> _roleManager;
         private readonly UserManager<AppUser> _userManager;
+        private readonly IOpenIddictApplicationManager _manager;
 
         public TestService(RoleManager<AppRole> roleManager,
-            UserManager<AppUser> userManager)
+            UserManager<AppUser> userManager,
+            IOpenIddictApplicationManager manager)
         {
             _roleManager = roleManager;
             _userManager = userManager;
+            _manager = manager;
         }
 
         public async Task AddNewRoles()
@@ -50,15 +55,24 @@ namespace BLL.Services
         {
             var userList = new List<AppUser>()
             {
-                new AppUser()
+                new ()
                 {
                     UserName = "Tapos",
-                    Email = "Tapos.aa@gmail.com"
+                    Email = "Tapos.aa@gmail.com",
+                    FullName = "Biswanath gosh Tapos"
+                    
                 },
-                new AppUser()
+                new ()
                 {
                     UserName = "Sanjib",
-                    Email = "Sanjib.aa@gmail.com"
+                    Email = "Sanjib.aa@gmail.com",
+                    FullName = "Sanjib dhar"
+                },
+                new ()
+                {
+                    UserName = "keenedy",
+                    Email = "keenedy.aa@gmail.com",
+                    FullName = "keenedy sarker"
                 }
             };
 
@@ -72,7 +86,69 @@ namespace BLL.Services
 
                     if (insertData.Succeeded)
                     {
-                        await _userManager.AddToRoleAsync(user, "admin");
+                        var myRole = user.Email switch
+                        {
+                            "Tapos.aa@gmail.com" => "admin",
+                            "Sanjib.aa@gmail.com" => "manager",
+                            "keenedy.aa@gmail.com" => "supervisor",
+                            _ => ""
+                        };
+                        await _userManager.AddToRoleAsync(user, myRole);
+                    }
+                }
+            }
+        }
+
+        public async Task CreateAndroidAndWebClient()
+        {
+            var listOfClient = new List<OpenIddictApplicationDescriptor>()
+            {
+                new()
+                {
+                    ClientId = "udemy_android_application",
+                    ClientSecret = "udemy123",
+                    DisplayName = "our android client",
+                    Permissions =
+                    {
+                        OpenIddictConstants.Permissions.Endpoints.Authorization,
+                        OpenIddictConstants.Permissions.Endpoints.Logout,
+                        OpenIddictConstants.Permissions.Endpoints.Token,
+                        OpenIddictConstants.Permissions.GrantTypes.Password,
+                        OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
+                        OpenIddictConstants.Permissions.Scopes.Email,
+                        OpenIddictConstants.Permissions.Scopes.Profile,
+                        OpenIddictConstants.Permissions.Scopes.Roles
+                    }
+                },
+
+                new()
+                {
+                    ClientId = "udemy_web_application",
+                    ClientSecret = "udemy456",
+                    DisplayName = "our web client",
+                    Permissions =
+                    {
+                        OpenIddictConstants.Permissions.Endpoints.Authorization,
+                        OpenIddictConstants.Permissions.Endpoints.Logout,
+                        OpenIddictConstants.Permissions.Endpoints.Token,
+                        OpenIddictConstants.Permissions.GrantTypes.Password,
+                        OpenIddictConstants.Permissions.GrantTypes.RefreshToken,
+                        OpenIddictConstants.Permissions.Scopes.Email,
+                        OpenIddictConstants.Permissions.Scopes.Profile,
+                        OpenIddictConstants.Permissions.Scopes.Roles
+                    }
+                },
+            };
+
+            foreach (var application in listOfClient)
+            {
+                if (application.ClientId != null)
+                {
+                    var applicationExits = await _manager.FindByClientIdAsync(application.ClientId);
+
+                    if (applicationExits == null)
+                    {
+                        await _manager.CreateAsync(application);
                     }
                 }
             }

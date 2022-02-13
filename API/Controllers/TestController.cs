@@ -19,6 +19,7 @@ namespace API.Controllers
 
             await _testService.AddNewRoles();
             await _testService.AddNewUser();
+            await _testService.CreateAndroidAndWebClient();
             return Ok("ok");
         }
     }
