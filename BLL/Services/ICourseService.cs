@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using BLL.Request;
 using DLL.Model;
 using DLL.Repositories;
+using Utility;
 using Utility.Exceptions;
 
 namespace BLL.Services
@@ -16,7 +17,8 @@ namespace BLL.Services
         Task<Course> DeleteAsync(string code);
         Task<Course> GetAAsync(string code);
         Task<Course> UpdateAsync(string code, Course course);
-        
+
+        Task testing(RequestMaker loginUser);
     }
 
     public class CourseService : ICourseService
@@ -140,6 +142,14 @@ namespace BLL.Services
             }
             throw new ApplicationValidationException("Course Insert failed");
         }
-        
+
+        public  Task testing(RequestMaker loginUser)
+        {
+            var userId = loginUser.Principal.GetUserId();
+            var userName = loginUser.Principal.GetUserName();
+            var userRoll = loginUser.Principal.GetUserRoll();
+
+            throw new NotImplementedException();
+        }
     }
 }

@@ -27,7 +27,8 @@ namespace API.Controllers
             _userManager = userManager;
         }
 
-        [HttpPost("~/connect/token"), Produces("application/json")]
+        [HttpPost("~/connect/token")]
+        [Produces("application/json")]
         public async Task<IActionResult> Exchange()
         {
             var request = HttpContext.GetOpenIddictServerRequest();
@@ -49,7 +50,7 @@ namespace API.Controllers
 
                 // Validate the username/password parameters and ensure the account is not locked out.
                 var result =
-                    await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
+                    await _signInManager.CheckPasswordSignInAsync(user, request.Password, true);
                 if (!result.Succeeded)
                 {
                     var properties = new AuthenticationProperties(new Dictionary<string, string>
@@ -60,7 +61,7 @@ namespace API.Controllers
                             "The username/password couple is invalid."
                     });
 
-                    return Forbid(properties, 
+                    return Forbid(properties,
                         OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
                 }
 
@@ -78,11 +79,57 @@ namespace API.Controllers
                     OpenIddictConstants.Scopes.OfflineAccess
                 }.Intersect(request.GetScopes()));
 
+                foreach (var claim in principal.Claims) claim.SetDestinations(GetDestinations(claim, principal));
+
+                return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            }
+
+            if (request != null && request.IsRefreshTokenGrantType())
+            {
+                // Retrieve the claims principal stored in the refresh token.
+                var info = await HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+
+                // Retrieve the user profile corresponding to the refresh token.
+                // Note: if you want to automatically invalidate the refresh token
+                // when the user password/roles change, use the following line instead:
+                // var user = _signInManager.ValidateSecurityStampAsync(info.Principal);
+                var user = await _userManager.GetUserAsync(info.Principal);
+                if (user == null)
+                {
+                    var properties = new AuthenticationProperties(new Dictionary<string, string>
+                    {
+                        [OpenIddictServerAspNetCoreConstants.Properties.Error] =
+                            OpenIddictConstants.Errors.InvalidGrant,
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                            "The refresh token is no longer valid."
+                    });
+
+                    return Forbid(properties, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+                }
+
+                // Ensure the user is still allowed to sign in.
+                if (!await _signInManager.CanSignInAsync(user))
+                {
+                    var properties = new AuthenticationProperties(new Dictionary<string, string>
+                    {
+                        [OpenIddictServerAspNetCoreConstants.Properties.Error] =
+                            OpenIddictConstants.Errors.InvalidGrant,
+                        [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] =
+                            "The user is no longer allowed to sign in."
+                    });
+
+                    return Forbid(properties, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+                }
+
+                // Create a new ClaimsPrincipal containing the claims that
+                // will be used to create an id_token, a token or a code.
+                var principal = await _signInManager.CreateUserPrincipalAsync(user);
+                
                 foreach (var claim in principal.Claims)
                 {
                     claim.SetDestinations(GetDestinations(claim, principal));
                 }
-
+                
                 return SignIn(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
             }
 
